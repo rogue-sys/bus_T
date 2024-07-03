@@ -21,4 +21,3 @@ class BusTApp extends StatelessWidget {
     );
   }
 }
-
