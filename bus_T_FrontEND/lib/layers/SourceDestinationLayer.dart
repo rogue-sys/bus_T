@@ -20,7 +20,7 @@ class _SourceDestinationLayerState extends State<SourceDestinationLayer> {
 
     // Send source and destination names to the backend
     String url =
-        'http://192.168.20.5:5000/api/searchBuses'; // Replace with your backend endpoint URL
+        'http://192.0.0.2:5555/api/searchBuses'; // Replace with your backend endpoint URL
     final response = await http.post(
       Uri.parse(url),
       body: jsonEncode({'source': source, 'destination': destination}),
