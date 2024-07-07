@@ -1,7 +1,8 @@
-import 'dart:ui';
-
+import 'package:bust_design/pages/source_dest_page/source_dest.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'dart:convert';
+
 
 class ThirdLoginLayer extends StatefulWidget {
   const ThirdLoginLayer({super.key});
@@ -11,6 +12,9 @@ class ThirdLoginLayer extends StatefulWidget {
 }
 
 class _ThirdLoginLayerState extends State<ThirdLoginLayer> {
+  final _usernamecontroller = TextEditingController();
+  final _passwordcontroller = TextEditingController();
+final _formKey = GlobalKey<FormState>();
   bool isChecked = false;
 
   @override
@@ -36,11 +40,12 @@ class _ThirdLoginLayerState extends State<ThirdLoginLayer> {
               width: 270,
               height: 50,
               child: TextFormField(
+                controller: _usernamecontroller,
                 decoration: InputDecoration(
                   filled: true,
-                  fillColor:const Color.fromARGB(255, 216, 226, 242),
+                  fillColor: const Color.fromARGB(255, 216, 226, 242),
                   focusColor: const Color.fromARGB(255, 216, 226, 242),
-                  labelText: 'Email/Username',
+                  labelText: 'Enter username/email',
                   labelStyle: TextStyle(
                     fontSize: 12.0,
                     color: Colors.black.withOpacity(0.6),
@@ -51,26 +56,30 @@ class _ThirdLoginLayerState extends State<ThirdLoginLayer> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderSide: const BorderSide(
-                        color: Colors.blue, width: 1.0,), // Border when focused
+                      color: Colors.blue,
+                      width: 1.0,
+                    ), // Border when focused
                     borderRadius: BorderRadius.circular(40.0),
                   ),
-                 floatingLabelBehavior: FloatingLabelBehavior.never,
-                  prefixIcon: const Icon(Icons.email_rounded,color: Colors.blue,),
+                  floatingLabelBehavior: FloatingLabelBehavior.never,
+                  prefixIcon: const Icon(
+                    Icons.account_circle_rounded,
+                    color: Colors.blue,
+                  ),
                 ),
               ),
             ),
-    
             const SizedBox(height: 24.0),
-    
-             Container(
+            Container(
               width: 270,
               height: 50,
               child: TextFormField(
+                controller: _passwordcontroller,
                 decoration: InputDecoration(
                   filled: true,
-                  fillColor:const Color.fromARGB(255, 216, 226, 242),
+                  fillColor: const Color.fromARGB(255, 216, 226, 242),
                   focusColor: const Color.fromARGB(255, 216, 226, 242),
-                  labelText: 'Password',
+                  labelText: ' Enter Password',
                   labelStyle: TextStyle(
                     fontSize: 12.0,
                     color: Colors.black.withOpacity(0.6),
@@ -81,19 +90,20 @@ class _ThirdLoginLayerState extends State<ThirdLoginLayer> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderSide: const BorderSide(
-                        color: Colors.blue, width: 1.0,), // Border when focused
+                      color: Colors.blue,
+                      width: 1.0,
+                    ), // Border when focused
                     borderRadius: BorderRadius.circular(40.0),
-                    
                   ),
-                 floatingLabelBehavior: FloatingLabelBehavior.never,
-                  prefixIcon: const Icon(Icons.lock,color: Colors.blue,),
+                  floatingLabelBehavior: FloatingLabelBehavior.never,
+                  prefixIcon: const Icon(
+                    Icons.lock,
+                    color: Colors.blue,
+                  ),
                 ),
               ),
             ),
-    
-    
             const SizedBox(height: 6.0),
-    
             Padding(
               padding: const EdgeInsets.only(left: 30.0),
               child: Row(
@@ -114,7 +124,6 @@ class _ThirdLoginLayerState extends State<ThirdLoginLayer> {
                           }),
                     ),
                   ),
-    
                   Container(
                     width: 99.0,
                     height: 24.0,
@@ -129,7 +138,9 @@ class _ThirdLoginLayerState extends State<ThirdLoginLayer> {
             Container(
               width: 200,
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  loginUser();
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   foregroundColor: Colors.white,
@@ -140,6 +151,7 @@ class _ThirdLoginLayerState extends State<ThirdLoginLayer> {
             const SizedBox(height: 30.0),
             Container(
               width: 200,
+              //color: Colors.amber,
               child: ElevatedButton.icon(
                 onPressed: () {},
                 icon: SizedBox(
@@ -150,6 +162,15 @@ class _ThirdLoginLayerState extends State<ThirdLoginLayer> {
                   ),
                 ),
                 label: const Text('Sign up with Google'),
+                style: ButtonStyle(
+                  side: WidgetStateProperty.all<BorderSide>(
+                    BorderSide(
+                      color:
+                          Colors.blue.withOpacity(0.2), // Adjust opacity here
+                      width: 1, // Adjust border width
+                    ),
+                  ),
+                ),
               ),
             ),
             const SizedBox(height: 39.0),
@@ -157,5 +178,51 @@ class _ThirdLoginLayerState extends State<ThirdLoginLayer> {
         ),
       ),
     );
+  }
+
+  void loginUser() async{
+    if(_usernamecontroller.text.isNotEmpty &&  _passwordcontroller.text.isNotEmpty){
+
+      var regBody = {
+        "email":_usernamecontroller.text,
+        "password":_passwordcontroller.text,
+      };
+
+      print(regBody);
+
+
+      var response = await http.post(Uri.parse('http://192.168.20.3:5000/api/users/login'),
+      headers: {"Content-Type":"application/json"},
+      body: jsonEncode(regBody)
+      );
+      
+      if(response.statusCode == 200){
+        print('login successfull');
+         Navigator.push(context, MaterialPageRoute(builder: (context) =>const  SourceDest()));
+      }
+
+      else{
+        print('login unsuccessful');
+      }
+    }
+    else{
+     showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const  Text('Error'),
+          content: const Text('Please enter proper info'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+    }
   }
 }
