@@ -32,6 +32,8 @@ dependencies:
     sdk: flutter
   http: ^1.2.0
   time_range_picker: ^2.3.0
+  cached_network_image: ^3.0.0  # Add this for network image caching (optional)
+  # Add this for SVG support (optional)
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -57,6 +59,8 @@ flutter:
   assets:
   - assets/top_img1.jpg
   - assets/google_icon.png
+  - assets/image1.png
+  - assets/image2.png
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
