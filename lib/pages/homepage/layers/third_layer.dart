@@ -4,6 +4,7 @@ import 'package:bust_design/pages/source_dest_page/source_dest.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:google_sign_in/google_sign_in.dart';
 
 class ThirdLayer extends StatefulWidget {
   const ThirdLayer({super.key});
@@ -13,14 +14,19 @@ class ThirdLayer extends StatefulWidget {
 }
 
 class _ThirdLayerState extends State<ThirdLayer> {
-  final _namecontroller = TextEditingController();
+  final _nameController = TextEditingController();
   final _usernameController = TextEditingController();
-  final _passwordcontroller = TextEditingController();
+  final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _showError = false;
   bool isChecked = false;
 
- 
+  GoogleSignIn _googleSignIn = GoogleSignIn(
+    scopes: <String>[
+      'email',
+    ],
+  );
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -39,19 +45,16 @@ class _ThirdLayerState extends State<ThirdLayer> {
         padding: const EdgeInsets.all(20.0),
         child: Column(
           children: [
-            //Name textformfield
+            // Name textformfield
             Container(
               width: 270,
               height: 50,
-             //color: Colors.red,
-        
               child: TextFormField(
-                controller: _namecontroller,
+                controller: _nameController,
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: const Color.fromARGB(255, 216, 226, 242),
                   focusColor: const Color.fromARGB(255, 216, 226, 242),
-                  
                   labelText: 'Name',
                   labelStyle: TextStyle(
                     fontSize: 12.0,
@@ -76,23 +79,19 @@ class _ThirdLayerState extends State<ThirdLayer> {
                 ),
               ),
             ),
-            //username/email textformfield
             const SizedBox(height: 12.0),
-           Container(
+            // Username/email textformfield
+            Container(
               width: 270,
-             // color: Colors.red,
               height: 50,
               child: Form(
                 key: _formKey,
-                
                 child: TextFormField(
                   controller: _usernameController,
                   decoration: InputDecoration(
-                    //helperText: "",
                     filled: true,
                     fillColor: const Color.fromARGB(255, 216, 226, 242),
                     focusColor: const Color.fromARGB(255, 216, 226, 242),
-                   
                     labelText: 'Email/Username',
                     labelStyle: TextStyle(
                       fontSize: 12.0,
@@ -109,7 +108,6 @@ class _ThirdLayerState extends State<ThirdLayer> {
                       ), // Border when focused
                       borderRadius: BorderRadius.circular(40.0),
                     ),
-                    
                     floatingLabelBehavior: FloatingLabelBehavior.never,
                     prefixIcon: const Icon(
                       Icons.email_rounded,
@@ -117,15 +115,15 @@ class _ThirdLayerState extends State<ThirdLayer> {
                     ),
                   ),
                   onChanged: (value) {
-                    setState((){
+                    setState(() {
                       _showError = !_formKey.currentState!.validate();
                     });
                   },
-                  validator: (value){
-                    //check if the entered email is valid
-                    if(value != null && value.isNotEmpty){
-                      if(!isValidEmail(value)){
-                        return 'enter valid email';
+                  validator: (value) {
+                    // Check if the entered email is valid
+                    if (value != null && value.isNotEmpty) {
+                      if (!isValidEmail(value)) {
+                        return 'Enter valid email';
                       }
                     }
                     return null;
@@ -133,18 +131,18 @@ class _ThirdLayerState extends State<ThirdLayer> {
                 ),
               ),
             ),
-            //password textformfield
             const SizedBox(height: 12.0),
-           Container(
+            // Password textformfield
+            Container(
               width: 270,
               height: 50,
               child: TextFormField(
-                controller: _passwordcontroller,
+                controller: _passwordController,
+                obscureText: true,
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: const Color.fromARGB(255, 216, 226, 242),
                   focusColor: const Color.fromARGB(255, 216, 226, 242),
-                  
                   labelText: 'Password',
                   labelStyle: TextStyle(
                     fontSize: 12.0,
@@ -169,42 +167,41 @@ class _ThirdLayerState extends State<ThirdLayer> {
                 ),
               ),
             ),
-            //remember me
             const SizedBox(height: 6.0),
+            // Remember Me
             Padding(
               padding: const EdgeInsets.only(left: 38.0),
               child: Row(
                 children: [
-                  
                   CheckboxTheme(
                     data: CheckboxThemeData(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(50),
                       ),
                     ),
-                    
                     child: Transform.scale(
                       scale: 0.7,
                       child: Checkbox(
-                          value: isChecked,
-                          onChanged: (bool? value) {
-                            //  setState(() {
-                            //   isChecked = value ?? false;
-                          }),
+                        value: isChecked,
+                        onChanged: (bool? value) {
+                          setState(() {
+                            isChecked = value ?? false;
+                          });
+                        },
+                      ),
                     ),
                   ),
                   Container(
                     width: 99.0,
                     height: 24.0,
-                    
                     alignment: Alignment.centerLeft,
                     child: const Text('Remember Me'),
                   ),
                 ],
               ),
             ),
-            //register button
             const SizedBox(height: 12.0),
+            // Register Button
             Container(
               width: 200,
               child: ElevatedButton(
@@ -218,12 +215,12 @@ class _ThirdLayerState extends State<ThirdLayer> {
                 child: const Text('Register'),
               ),
             ),
-            //google login button
             const SizedBox(height: 12.0),
+            // Google Login Button
             Container(
               width: 200,
               child: ElevatedButton.icon(
-                onPressed: () {},
+                onPressed: _handleGoogleSignIn,
                 icon: SizedBox(
                   width: 25,
                   height: 20,
@@ -233,20 +230,24 @@ class _ThirdLayerState extends State<ThirdLayer> {
                 ),
                 label: const Text('Sign up with Google'),
                 style: ButtonStyle(
-                  side: WidgetStateProperty.all<BorderSide>(
+                  side: MaterialStateProperty.all<BorderSide>(
                     BorderSide(
-                      color:
-                          Colors.blue.withOpacity(0.2), // Adjust opacity here
-                      width: 1, // Adjust border width
+                      color: Colors.blue.withOpacity(0.2),
+                      width: 1,
                     ),
                   ),
                 ),
               ),
             ),
-            //login here for already have an account users
             const SizedBox(height: 39.0),
+            // Already Have an Account? Login Here
             GestureDetector(
-              onTap: () {},
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginPage()),
+                );
+              },
               child: RichText(
                 text: TextSpan(
                   text: 'Already have an account? ',
@@ -258,72 +259,94 @@ class _ThirdLayerState extends State<ThirdLayer> {
                         color: Colors.blue,
                         decoration: TextDecoration.none,
                       ),
-                      recognizer: TapGestureRecognizer()
-                        ..onTap = () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const LoginPage()),
-                          );
-                        },
                     ),
                   ],
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),
     );
   }
 
- void registerUser() async{
-    if(_namecontroller.text.isNotEmpty && _usernameController.text.isNotEmpty && _passwordcontroller.text.isNotEmpty){
-
+  void registerUser() async {
+    if (_nameController.text.isNotEmpty &&
+        _usernameController.text.isNotEmpty &&
+        _passwordController.text.isNotEmpty) {
       var regBody = {
-        "name":_namecontroller.text,
+        "name": _nameController.text,
         "email": _usernameController.text,
-        "password":_passwordcontroller.text,
+        "password": _passwordController.text,
       };
 
-      var response = await http.post(Uri.parse('http://192.168.20.3:5000/api/users/registration'),
-      headers: {"Content-Type":"application/json"},
-      body: jsonEncode(regBody)
+      var response = await http.post(
+        Uri.parse('http://192.168.20.3:5000/api/users/registration'),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(regBody),
       );
-      
-       if (response.statusCode == 200) {
+
+      if (response.statusCode == 200) {
         // Handle successful registration
         print('Registration successful');
-        Navigator.push(context, MaterialPageRoute(builder: (context) =>const  SourceDest()));
-
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const SourceDest()),
+        );
       } else {
         // Handle registration failure
         print('Registration failed');
       }
-    }
-    else{
-     showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const  Text('Error'),
-          content: const Text('Please enter proper info'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
+    } else {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Error'),
+            content: const Text('Please enter proper info'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
     }
   }
 
+  void _handleGoogleSignIn() async {
+    try {
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser!.authentication;
 
-   bool isValidEmail(String email) {
+      var response = await http.post(
+        Uri.parse('http://192.168.20.3:5000/api/users/googleSignIn'),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({"token": googleAuth.idToken}),
+      );
+
+      if (response.statusCode == 200) {
+        // Handle successful Google sign-in
+        print('Google sign-in successful');
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const SourceDest()),
+        );
+      } else {
+        // Handle Google sign-in failure
+        print('Google sign-in unsuccessful');
+      }
+    } catch (error) {
+      print('Google sign-in error: $error');
+    }
+  }
+
+  bool isValidEmail(String email) {
     return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email);
   }
 }

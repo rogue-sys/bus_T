@@ -22,7 +22,7 @@ class _SplashScreenState extends State<SplashScreen> {
     });
 
     // Navigate to HomePage after 5 seconds
-    Timer(Duration(seconds: 5), () {
+    Timer(Duration(seconds: 4), () {
       if (mounted) {
         // Check if the widget is still mounted
         Navigator.of(context).pushReplacement(
