@@ -8,6 +8,11 @@ The `bus_T` repository contains the codebase for a bus management application. I
 - `bus_T_BackEnd/`: Contains the backend code.
 - `bus_T_FrontEND/`: Contains the frontend code.
 
+ ## Figma
+- used figma to a outline designs of the app interface
+- https://www.figma.com/design/k9qA4GGwP1F0xtlrqPEeE7/BUS-T?node-id=0-1&t=NPhRUJeAP3VgDnNg-0
+- 
+
 ## Backend
 
 ### Overview
